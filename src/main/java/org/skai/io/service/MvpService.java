@@ -1,6 +1,6 @@
 package org.skai.io.service;
 
-import org.skai.io.util.SportTypesAvailable;
+import org.skai.io.util.SportsUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -12,19 +12,21 @@ import static org.skai.io.Main.context;
 
 public class MvpService {
 
-    private static final SportTypesAvailable SPORT_TYPES_AVAILABLE = context.getBean(SportTypesAvailable.class);
+    private static final SportsUtil SPORT_TYPES_AVAILABLE = context.getBean(SportsUtil.class);
 
-    public String getMvp(List<PlayerStats> playerStatsList)
+    public String getMvp(List<MatchStats> matchStatsList)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
         Map<String, Integer> playerRatings = new HashMap<>();
 
-        countScoresAndSetWinners(playerStatsList);
+        countScoresAndSetWinners(matchStatsList);
 
-        for (PlayerStats playerStats : playerStatsList) {
-            int rating = playerRatings.getOrDefault(playerStats.getNickname(), 0);
-            rating += playerStats.getRating();
-            playerRatings.put(playerStats.getNickname(), rating);
+        for (MatchStats matchStats : matchStatsList) {
+            for (PlayerStats playerStats : matchStats.getPlayerStatsList()) {
+                int rating = playerRatings.getOrDefault(playerStats.getNickname(), 0);
+                rating += playerStats.getRating();
+                playerRatings.put(playerStats.getNickname(), rating);
+            }
         }
 
         Map.Entry<String, Integer> mvpEntry = findTheFirstByScores(playerRatings);
@@ -32,21 +34,12 @@ public class MvpService {
         return mvpEntry.getKey();
     }
 
-    // TODO: 11/1/22 implement the MATCH entity to deal with number of players in countScoresAndSetWinners method
-
-    /*
-     * Counts the final match score by the stats of every player and sets the winner team per single game
-     * In future with the adding another sports can be improved by getting number of players according to any specific game
-     */
-    private void countScoresAndSetWinners(List<? extends PlayerStats> playerStatsList)
+    private void countScoresAndSetWinners(List<? extends MatchStats> matchStatsList)
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
-        for (int i = 0; i < playerStatsList.size(); i += 6) {
-
-            List<? extends PlayerStats> statsPerSingleMatch = playerStatsList.subList(i, Math.min(playerStatsList.size(), i + 6));
-
+        for (MatchStats matchStats : matchStatsList) {
             Map<String, Integer> teamPoints = new HashMap<>();
-
+            List<? extends PlayerStats> statsPerSingleMatch = matchStats.getPlayerStatsList();
             for (PlayerStats playerStats : statsPerSingleMatch) {
                 SportService sportService = SPORT_TYPES_AVAILABLE.getSports().get(playerStats.getSportType())
                         .getConstructor()
@@ -60,7 +53,6 @@ public class MvpService {
                 statsPerSingleMatch.stream()
                         .filter(stats -> teamWon.getKey().equals(stats.getTeamName()))
                         .forEach(stats -> stats.setTeamWon(true));
-
             }
         }
     }

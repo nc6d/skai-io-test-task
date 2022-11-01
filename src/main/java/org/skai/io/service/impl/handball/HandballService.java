@@ -1,5 +1,6 @@
 package org.skai.io.service.impl.handball;
 
+import org.skai.io.service.MatchStats;
 import org.skai.io.service.PlayerStats;
 import org.skai.io.service.SportService;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,10 @@ public class HandballService implements SportService<HandballPlayerStats> {
     @Override
     public Class<? extends PlayerStats> getPlayerStatsClass() {
         return HandballPlayerStats.class;
+    }
+
+    public Class<? extends MatchStats> getMatchStatsClass() {
+        return HandballMatchStats.class;
     }
 
 }

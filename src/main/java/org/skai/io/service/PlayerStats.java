@@ -1,15 +1,20 @@
 package org.skai.io.service;
 
-import java.util.Map;
+import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.NoSuchElementException;
 
-public interface PlayerStats<A extends Action> {
-
+@Component
+public interface PlayerStats {
 
 	public boolean isTeamWon();
 
 	public void setTeamWon(boolean teamWon);
 
+	public void setSportType(String sportType);
+
+	public String getSportType();
 
 	public String getName();
 
@@ -20,10 +25,8 @@ public interface PlayerStats<A extends Action> {
 
 	public String getTeamName();
 
-	public Map<A, Integer> getActions();
-
-
-	public int getRating() throws Exception;
+	public int getRating() throws NoSuchElementException, NoSuchMethodException,
+			InvocationTargetException, InstantiationException, IllegalAccessException;
 
 
 }

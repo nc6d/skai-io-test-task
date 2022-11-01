@@ -1,15 +1,21 @@
 package org.skai.io.service.impl.basketball;
 
-import org.skai.io.Main;
+import lombok.Getter;
 import org.skai.io.service.AbstractPlayerStats;
 import org.skai.io.service.PlayerStats;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
+import static org.skai.io.Main.context;
+
+@Getter
 public class BasketballPlayerStats
         extends AbstractPlayerStats
-        implements PlayerStats<BasketballAction> {
+        implements PlayerStats {
+
+    private final BasketballService basketballService = context.getBean(BasketballService.class);
 
     private final Map<BasketballAction, Integer> interactions;
 
@@ -26,23 +32,20 @@ public class BasketballPlayerStats
         setPlayerNumber(Integer.parseInt(statsArray[2]));
         setTeamName(statsArray[3]);
 
-        interactions = new HashMap<>();
+        interactions = new EnumMap<>(BasketballAction.class);
 
         interactions.put(BasketballAction.SCORE, Integer.parseInt(statsArray[4]));
         interactions.put(BasketballAction.REBOUND, Integer.parseInt(statsArray[5]));
         interactions.put(BasketballAction.ASSIST, Integer.parseInt(statsArray[6]));
+
     }
 
     @Override
-    public Map<BasketballAction, Integer> getActions() {
-        return interactions;
+    public int getRating() throws NoSuchElementException {
+        return basketballService.calculatePlayerRating(this);
     }
 
-    public int getRating() throws Exception {
-        var sportClass = Main.SPORT_TYPES.get("BASKETBALL");
-        var sportService = sportClass.getDeclaredConstructor().newInstance();
-        return sportService.calculatePlayerRating(this);
-    }
+
 
 
 }

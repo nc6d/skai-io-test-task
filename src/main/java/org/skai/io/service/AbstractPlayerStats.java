@@ -7,6 +7,15 @@ public abstract class AbstractPlayerStats {
 	private String playerNick;
 	private int playerNumber;
 	private String teamName;
+	private String sportType;
+
+	public String getSportType() {
+		return sportType;
+	}
+
+	public void setSportType(String sportType) {
+		this.sportType = sportType;
+	}
 
 	public boolean isTeamWon() {
 		return teamWon;

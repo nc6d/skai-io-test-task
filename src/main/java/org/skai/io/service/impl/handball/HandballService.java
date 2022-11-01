@@ -2,15 +2,17 @@ package org.skai.io.service.impl.handball;
 
 import org.skai.io.service.PlayerStats;
 import org.skai.io.service.SportService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
-public class HandballService implements SportService<HandballPlayerStats, HandballAction> {
+@Service
+public class HandballService implements SportService<HandballPlayerStats> {
 
     @Override
     public int calculatePlayerRating(HandballPlayerStats playerStats) {
-        Map<HandballAction, Integer> actions = playerStats.getActions();
+        Map<HandballAction, Integer> actions = playerStats.getInteractions();
 
         int rating = actions.keySet()
                 .stream()
@@ -26,13 +28,9 @@ public class HandballService implements SportService<HandballPlayerStats, Handba
     public int calculateTeamScore(String teamName, List<HandballPlayerStats> playerStatsList) {
         return playerStatsList.stream()
                 .mapToInt(handballPlayerMatchStats -> handballPlayerMatchStats
-                        .getActions()
-                        .get(HandballAction.GOAL_MADE))
-                .sum();
+                        .getInteractions().get(HandballAction.GOAL_MADE)).sum();
     }
 
-
-    @Override
     public int getRating(HandballAction action, int times) {
         return switch (action) {
             case GOAL_MADE -> times * 2;
@@ -41,7 +39,7 @@ public class HandballService implements SportService<HandballPlayerStats, Handba
     }
 
     @Override
-    public Class<? extends PlayerStats<?>> getPlayerStatsClass() {
+    public Class<? extends PlayerStats> getPlayerStatsClass() {
         return HandballPlayerStats.class;
     }
 
